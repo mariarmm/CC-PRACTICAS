@@ -9,4 +9,4 @@ Autora: María Ramos Martínez
 
 Los hitos realizados son los siguientes:
 
-* [**Hito 1:** Definición del Proyecto, Modelo de Negocio y Arquitectura de Referencia](hito1).
+* [**Hito 1:** Definición del Proyecto, Modelo de Negocio y Arquitectura de Referencia](hito1.md).
