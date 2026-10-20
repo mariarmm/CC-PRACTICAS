@@ -55,6 +55,13 @@ La aplicación se plantea como un sistema basado en servicios cloud que cumple l
 
 ## Diagrama de arquitectura
 
+La arquitectura propuesta se divide en tres microservicios independientes, cada uno con diferentes responsabilidades:
+- Servicio de autenticación y usuarios: Se encarga del registro de usuarios, del inicio de sesión y de la gestión de permisos.
+- Servicio geográfico: Gestión de explotaciones, parcelas, coordenadas e importación de plantas.
+- Servicio de tratamientos: Registro y consulta del historial de tratamientos de cada planta.
+
+ La comunicación entre el cliente y los servicios se realizará mediante API REST sobre HTTPS, utilizando JSON. El servicio de tratamientos podrá consultar al servicio geográfico para verificar la existencia de la planta y su pertenencia a una explotación autorizada.
+
 
 ## Especificación API REST
 
