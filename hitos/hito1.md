@@ -4,7 +4,7 @@
 ### Problema
   Las explotaciones agrícolas necesitan mantener un historial de tratamientos, enfermedades y otras actualizaciones realizadas sobre cada planta para mejorar la trazabilidad, consultar intervenciones anteriores y mantener la información de cada parcela actualizada. 
   
-Actualmente, estos datos se almacenan mediante hojas de cálculo o anotaciones manuales, lo que dificulta la localización de una planta concreta y conocer qué tratamientos o actuaciones se han sobre ella.
+Actualmente, estos datos se almacenan mediante hojas de cálculo o anotaciones manuales, lo que dificulta la localización de una planta concreta y conocer qué tratamientos o actuaciones se han realizado sobre ella.
 
   La idea de este proyecto surge de observar este problema en una explotación agrícola de olivar. Sin embargo, la aplicación se desarrollará de forma general para que pueda adaptarse a cualquier tipo de plantación.
 
@@ -12,7 +12,7 @@ Actualmente, estos datos se almacenan mediante hojas de cálculo o anotaciones m
   El objetivo es desarrollar una aplicación distribuida que permita gestionar la información geográfica de las plantas y registrar y consultar su historial de tratamientos y actuaciones, mediante una arquitectura basada en microservicios desacoplados.
   
 La aplicación permitirá: 
-- Gestionar explotaciones y parcelas agrícolas.
+- Gestionar parcelas agrícolas.
 - Importar las coordenadas de las plantas de una parcela.
 - Visualizar un listado de las plantas registradas.
 - Registrar tratamientos y actuaciones asociados a las plantas concretas.
