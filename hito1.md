@@ -32,5 +32,26 @@ Los casos de usos principales son:
 
 
 ## Justificación NIST SP 800-145
+La aplicación se plantea como un sistema basado en servicios cloud que cumple las cinco características definidas por NIST SP 800-145:
+
+| Característica | Justificación |
+|---|---|
+| Autoservicio bajo demanda | Los usuarios pueden gestionar parcelas, plantas y tratamientos desde la aplicación sin necesitar la intervención del proveedor cloud para cada operación.| 
+| Acceso amplio a la red| La plataforma será accesible mediante una conexión de red desde distintos dispositivos, como ordenadores, tabletas y móviles.|
+| Asignación común de recursos | La infraestructura cloud podrá compartirse entre distintas explotaciones, manteniendo aislados sus datos y permisos. |
+| Rápida elasticidad | La capacidad de los servicios podrá ampliarse o reducirse según la demanda, dependiendo de la infraestructura y la configuración del despliegue. |
+| Servicio medido | Se podrán monitorizar el consumo de almacenamiento, CPU, tráfico y peticiones para controlar los recursos utilizados. |
+
+## Mapeo de actores NIST SP 500-292 
+
+| Actor | Aplicación en AgroTrace | Impacto económico |
+|---|---|---|
+| Consumidor | Explotaciones agrícolas que utilizan la plataforma. | Asume el coste de la suscripción para utilizar la plataforma. | 
+| Proveedor  | Empresa que proporciona la infraestructura y los servicios cloud donde se ejecuta la aplicación. | Cobra por los recursos y servicios proporcionados. | 
+| Intermediario | Entidad que gestiona servicios de uno o varios proveedores de cloud (opcional). | Puede añadir costes de gestión, pero simplificar la administración de los servicios. | 
+| Auditor | Entidad independiente que evalúa la seguridad, los controles y el cumplimiento de los servicios cloud utilizados. | Puede generar costes de auditoría, pero contribuir a reducir riesgos e identificar deficiencias. | 
+| Operador | Proveedor de conectividad que permite la comunicación entre los usuarios y la infraestructura cloud. | Los costes dependen del servicio de conectividad contratado.
+
+
 
 
