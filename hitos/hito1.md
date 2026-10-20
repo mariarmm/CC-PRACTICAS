@@ -20,7 +20,7 @@ La aplicación permitirá:
 - Controlar el acceso a la información según los permisos de cada usuario.
 
 ### Usuarios y casos de uso
-Los principales usuarios serán los responsables y trabajadores de las explotaciones agrícolas.
+Los principales usuarios serán los encargados y trabajadores de las explotaciones agrícolas.
 
 Los casos de usos principales son:
 - Registrarse e iniciar sesión
