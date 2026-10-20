@@ -31,3 +31,5 @@ Se utilizará una convención de commits semánticos para identificar el propós
 - chore: tareas de mantenimiento y configuración
 
  Esta convención se aplicará a los nuevos commits del proyecto para facilitar la comprensión del historial de cambios.
+
+## [Tablero activo](https://github.com/users/mariarmm/projects/1)
