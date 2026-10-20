@@ -25,9 +25,9 @@ Los principales usuarios serán los responsables y trabajadores de las explotaci
 Los casos de usos principales son:
 - Registrarse e iniciar sesión
 - Registrar una explotación.
-- Importar olivos desde un archivo geográfico
-- Registrar un tratamiento sobre un olivo.
-- Consultar el historial de tratamientos de un olivo.
+- Importar plantas desde un archivo geográfico
+- Registrar un tratamiento/actuación sobre una planta.
+- Consultar el historial de tratamientos y actuaciones de una planta.
 - Consultar solo la información de las explotaciones a las que se tiene acceso.
 
 
@@ -53,5 +53,23 @@ La aplicación se plantea como un sistema basado en servicios cloud que cumple l
 | Operador | Proveedor de conectividad que permite la comunicación entre los usuarios y la infraestructura cloud. | Los costes dependen del servicio de conectividad contratado.
 
 
+## Diagrama de arquitectura
 
+
+## Especificación API REST
+
+ | Método HTTP | Endpoint | Descripción | 
+ |---|---|---|
+ | POST | /auth/register | Registrar un nuevo usuario. | 
+ | POST | /auth/login | Iniciar sesión. | 
+ | POST | /parcelas | Crear una nueva parcela agrícola. | 
+ | GET | /parcelas | Consultar las parcelas accesibles para el usuario autenticado. | 
+ | POST | /plantas/importar | Importar plantas y sus coordenadas desde un archivo. | 
+ | GET | /parcelas/{id}/plantas | Obtener las plantas de una parcela determinada. | 
+ | GET | /plantas/{id} | Consultar los datos de una planta concreta. | 
+ | POST | /tratamientos | Registrar un tratamiento aplicado a una planta. | 
+ | GET | /plantas/{id}/historial | Consultar el historial de tratamientos de una olanta. | 
+ | GET | /tratamientos?parcelaId={id} | Consultar los tratamientos asociados a una parcela. | 
+
+Las peticiones que requieran autenticación utilizarán un token de acceso. El servidor comprobará los permisos del usuario antes de permitir el acceso o la modificación de los datos.
 
