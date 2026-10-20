@@ -4,12 +4,11 @@ Repositorio de prácticas de la asignatura de Cloud Computing del máster en Ing
 
 Autora: María Ramos Martínez
 
-
-## Hitos
-
-Los hitos realizados son los siguientes:
-
-* [**Hito 1:** Definición del Proyecto, Modelo de Negocio y Arquitectura de Referencia](/hitos/hito1.md).
+## Enlaces
+- [Tablero activo](https://github.com/users/mariarmm/projects/1)
+- [Historias de usuario](https://github.com/mariarmm/CC-PRACTICAS/issues?q=is%3Aissue+state%3Aopen+label%3Auser-story)
+- Hitos:
+  - [**Hito 1:** Definición del Proyecto, Modelo de Negocio y Arquitectura de Referencia](/hitos/hito1.md).
 
 
 ## Estrategia de ramas
@@ -31,5 +30,3 @@ Se utilizará una convención de commits semánticos para identificar el propós
 - chore: tareas de mantenimiento y configuración
 
  Esta convención se aplicará a los nuevos commits del proyecto para facilitar la comprensión del historial de cambios.
-
-## [Tablero activo](https://github.com/users/mariarmm/projects/1)
