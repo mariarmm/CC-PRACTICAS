@@ -33,3 +33,6 @@ Thumbs.db
 # Archivos temporales
 tmp/
 temp/
+
+#python
+printf "__pycache__/\n*.pyc\n.pytest_cache/\n.ruff_cache/\n.venv/\n" >> .gitignore
