@@ -20,16 +20,27 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 # Función para crear el token
-def create_token(user_id: int, email: str) -> str:
+def create_token(user_id: int, email: str, rol: str, encargado_id: int | None = None) -> str:
     ahora = datetime.now(timezone.utc)
 
     # datos del token
     payload = {
         "sub": str(user_id), # A quién pertenece
-        "email": email,         
+        "email": email,
+        "rol" : rol,         
         "iat": ahora,        # Cuándo se emitió
         "exp": ahora + timedelta(minutes=JWT_EXPIRE_MINUTES), # Cuándo expira
     }
 
+    # Solo los trabajadores tienen encargado
+    if encargado_id is not None:
+        payload["encargado_id"] = encargado_id
+
     # Firma con JWT_SECRET
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+# Función para decodificar el token
+def decode_token(token: str) -> dict:
+
+    #Comprueba la firma y caducidad. Si algo falla, lanza excepción
+    return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])

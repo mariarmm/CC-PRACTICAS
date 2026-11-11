@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from .roles import Rol
+
 # schemas.py --> contrato de la API (qué JSON acepta y cual no)
 
 # Contrato para el registro
@@ -25,6 +27,8 @@ class UsuarioOut(BaseModel):
     id: int
     email: EmailStr
     nombre: str
+    rol: Rol
+    encargado_id: int | None = None
 
 
 # Contrato para devolver el token en /auth/login exitoso

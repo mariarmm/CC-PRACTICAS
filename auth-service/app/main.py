@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 
 from . import models, schemas, security
 from .database import Base, engine, get_db
+from .roles import Rol
+from .dependencies import get_usuario_actual
 
 # Funcion que se ejecuta al arrancar la app
 @asynccontextmanager
@@ -42,6 +44,8 @@ def register(datos: schemas.RegisterIn, db: Session = Depends(get_db)):
 
         #contraseña se convierte en hash antes de guardarla
         password_hash=security.hash_password(datos.password),
+
+        rol = Rol.ENCARGADO.value,  # el endpoint público siempre crea encargados
     )
     db.add(usuario)
     try:
@@ -73,4 +77,10 @@ def login(datos: schemas.LoginIn, db: Session = Depends(get_db)):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Credenciales incorrectas")
 
     # Devuelve el token con el id y el email
-    return schemas.TokenOut(access_token=security.create_token(usuario.id, usuario.email))
+    return schemas.TokenOut(access_token=security.create_token(usuario.id, usuario.email, usuario.rol, usuario.encargado_id))
+
+
+# Endpoint que devuelve los datos del dueño del token
+@app.get("/auth/me", response_model=schemas.UsuarioOut)
+def me(usuario: models.Usuario = Depends(get_usuario_actual)):
+    return usuario
