@@ -1,24 +1,22 @@
-# Dependencias
-node_modules/
-.pnpm-store/
+# Python
 venv/
 .venv/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.ruff_cache/
+
 
 # Variables de entorno y secretos
 .env
 .env.*
 !.env.example
-!.env.template
+
+# Bases de datos locales (pruebas con SQLite)
+*.db
 
 # Archivos generados
-dist/
-build/
-coverage/
 *.log
-npm-debug.log*
-pnpm-debug.log*
 
 # IDE y editores
 .idea/
@@ -34,5 +32,3 @@ Thumbs.db
 tmp/
 temp/
 
-#python
-printf "__pycache__/\n*.pyc\n.pytest_cache/\n.ruff_cache/\n.venv/\n" >> .gitignore
