@@ -12,7 +12,7 @@ from .roles import Rol
 # auto_error devuelve none si falta el token
 bearer = HTTPBearer(auto_error=False)
 
-# Funcion que lee el token de la cabezera, comprueba que la firma es valida y que no ha caducada, busca el usuario en la BD y lo devuelve
+# Funcion que lee el token de la cabezera, comprueba que la firma es valida y que no ha caducado, busca el usuario en la BD y lo devuelve
 def get_usuario_actual(credenciales: HTTPAuthorizationCredentials | None = Depends(bearer),db: Session = Depends(get_db),) -> models.Usuario:
     
     error = HTTPException(

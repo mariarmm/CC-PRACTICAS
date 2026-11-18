@@ -27,7 +27,7 @@ def health():
 
 
 
-# Endpoint de registro
+# Endpoint de registro de usuario
 @app.post(
     "/auth/register",
     response_model=schemas.UsuarioOut,  # Filtra la respuesta, para evitar que se muestre password_hash
@@ -63,7 +63,7 @@ def register(datos: schemas.RegisterIn, db: Session = Depends(get_db)):
 
 
 
-#Endpoint de login
+# Endpoint de login
 @app.post("/auth/login", response_model=schemas.TokenOut)
 def login(datos: schemas.LoginIn, db: Session = Depends(get_db)):
 
