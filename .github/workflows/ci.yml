@@ -54,3 +54,29 @@ jobs:
 
       - name: Tests (pytest)
         run: pytest -v
+
+  integration:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar variables de entorno y validar compose.yaml
+        run: |
+          cp .env.example .env
+          docker compose config -q
+
+      - name: Levantar el sistema completo
+        run: docker compose up -d --build --wait
+
+      - name: Pruebas de extremo a extremo
+        run: bash tests/e2e.sh
+
+      - name: Mostrar logs (solo si algo falló)
+        if: failure()
+        run: docker compose logs
+
+      - name: Apagar y limpiar
+        if: always()
+        run: docker compose down -v
