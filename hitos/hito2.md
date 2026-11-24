@@ -2,10 +2,11 @@
 
 En este hito se implementa la arquitectura de microservicios definida para el proyecto de gestión agrícola.
 
-El sistema está compuesto inicialmente por dos microservicios:
+El sistema está compuesto por tres microservicios:
 
 - `auth-service`: gestión de usuarios, autenticación y autorización.
 - `geo-service`: gestión de parcelas agrícolas.
+- `treatments-service`: gestión de tratamientos.
 
 Cada microservicio dispone de su propia base de datos y se ejecuta de forma independiente mediante contenedores Docker.
 
@@ -19,6 +20,8 @@ La API se prueba mediante la documentación interactiva de FastAPI (`/docs`) o m
 |---|---|---|---|
 | auth-service | Registro, login y emisión de tokens JWT con el rol del usuario | auth-db (PostgreSQL) | 8001 |
 | geo-service | Gestión de parcelas | geo-db (PostgreSQL) | 8002 |
+| treatments-service | Gestión de tratamientos | treatments-db (PostgreSQL) | 8003 |
+
 
 - Cada microservicio tiene **su propia base de datos**, en un contenedor y un volumen separados. Si cambia un servicio, solo se toca su base de datos.
 
@@ -35,6 +38,7 @@ CC-PRACTICAS/
 ├── .github/workflows/ci.yml    # integración continua
 ├── auth-service/               # microservicio de autenticación
 ├── geo-service/                # microservicio geográfico
+├── treatments-service/         # microservicio de tratamientos
 ├── tests/e2e.sh                # pruebas de integración de extremo a extremo
 ├── hitos/                      # documentación de los hitos
 ├── compose.yaml                # orquestación local de todo el sistema
@@ -99,9 +103,25 @@ propietario_id **no es una clave foránea**: los usuarios viven en otra base de 
 
 ---
 
+## `treatments-service`: tratamientos
+
+Este servicio está preparado pero sin funcionalidad todavía. Tiene su propio
+Dockerfile, su base de datos PostgreSQL (`treatments-db`), su red aislada, su
+volumen y su configuración en el compose, y se valida y publica con el CI igual
+que los demás. De momento solo expone:
+
+| Método | Endpoint | Descripción | Acceso |
+|---|---|---|---|
+| GET | `/health` | Indica que el servicio está activo | Público |
+
+Está previsto que registre los tratamientos aplicados a cada planta y permita
+consultar su historial. Ya incluye `security.py` y `dependencies.py` para validar tokens, igual que `geo-service`, de modo que los endpoints que se añadan podrán protegerse con los roles existentes. He decidido dejar la infraestructura para centrarme en los siguientes hitos en la implementación y en las pruebas.
+
+---
+
 ## Estructura común de los servicios
 
-Los dos servicios tienen la misma organización de archivos:
+Los tres servicios tienen la misma organización de archivos:
 
 ```text
 <servicio>/
@@ -133,16 +153,16 @@ Los dos servicios tienen la misma organización de archivos:
 | `database.py` | Crea la conexión (*engine*), la fábrica de sesiones y la dependencia `get_db`, que da una sesión a cada petición y la cierra al terminar |
 | `models.py` | Define las tablas de la base de datos |
 | `schemas.py` | Valida los datos de entrada y filtra los de salida |
-| `security.py` | En `auth-service`, cifra contraseñas con bcrypt y crea y valida tokens. En `geo-service` solo valida tokens, porque no los emite |
+| `security.py` | En `auth-service`, cifra contraseñas con bcrypt y crea y valida tokens. En `geo-service` y `treatments-service` solo se validan tokens, porque no los emiten |
 | `dependencies.py` | Lee el token de la cabecera `Authorization`, identifica al usuario y comprueba su rol: 401 si no hay token válido, 403 si el rol no basta |
 | `roles.py` | Lista cerrada de roles (`admin`, `encargado`, `trabajador`) |
 
-La principal diferencia de contenido entre ambos microservicios, aparte de la funcionalidad de cada uno, está en cómo identifican al usuario:
+La principal diferencia de contenido entre los microservicios, aparte de la funcionalidad de cada uno, está en cómo identifican al usuario:
 
 - `auth-service` busca al usuario en su base de datos en cada petición, por lo que un usuario borrado deja de poder usar su token.
-- `geo-service` lee los datos del usuario directamente del token, sin consultar ninguna base de datos. Así funciona aunque `auth-service` esté caído, a costa de que un token siga siendo válido hasta que caduque.
+- `geo-service` y `treatments-service` leen los datos del usuario directamente del token, sin consultar ninguna base de datos. Así funciona aunque `auth-service` esté caído, a costa de que un token siga siendo válido hasta que caduque.
 
-Archivos como `config.py`, `database.py` y `roles.py` están **duplicados a propósito** en los dos servicios. Compartirlos obligaría a los servicios a desplegarse juntos, lo que rompería su independencia.
+Archivos como `config.py`, `database.py` y `roles.py` están **duplicados a propósito** en los tres servicios. Compartirlos obligaría a los servicios a desplegarse juntos, lo que rompería su independencia.
 
 ---
 
@@ -155,6 +175,7 @@ Cada servicio dispone de sus propias pruebas automáticas.
 | `conftest.py` | Prepara el entorno de pruebas. Fija `DATABASE_URL` (SQLite en memoria) y `JWT_SECRET` **antes** de importar la aplicación, porque `config.py` los lee al importarse. Define la fixture `client`, que borra y recrea las tablas antes de cada prueba y entrega un cliente HTTP de pruebas, de modo que cada test parte de una base de datos vacía y ninguno depende de otro |
 | `test_auth.py` (`auth-service`) | Pruebas de la API de autenticación |
 | `test_parcelas.py` (`geo-service`) | Pruebas de la API de parcelas y de los permisos por rol |
+| `test_treatments.py` (`treatments-service`) | Pruebas de la API de tratamientos y de los permisos por rol |
 
 ---
 
@@ -174,7 +195,8 @@ Se definen en un archivo `.env` (no versionado) a partir de `.env.example`.
 |---|---|
 | `AUTH_DB_NAME`, `AUTH_DB_USER`, `AUTH_DB_PASSWORD` | Base de datos, usuario y contraseña de `auth-db`. PostgreSQL los crea la primera vez que arranca |
 | `GEO_DB_NAME`, `GEO_DB_USER`, `GEO_DB_PASSWORD` | Lo mismo para `geo-db` |
-| `JWT_SECRET` | Secreto con el que `auth-service` firma los tokens y `geo-service` los valida |
+| `TREAT_DB_NAME`, `TREAT_DB_USER`, `TREAT_DB_PASSWORD` | Lo mismo para `treatments-db` |
+| `JWT_SECRET` | Secreto con el que `auth-service` firma los tokens y `geo-service` y `treatments-service` los valida |
 
 `.env.example` contiene solo valores de relleno y sí se versiona. El `.env` real, con las credenciales, está en `.gitignore`.
 
@@ -192,6 +214,7 @@ Una vez arrancado, la documentación interactiva de cada servicio está en:
 
 - `auth-service`: `http://localhost:8001/docs`
 - `geo-service`: `http://localhost:8002/docs`
+- `treatments-service`: `http://localhost:8003/docs`
 
 ---
 
@@ -202,6 +225,8 @@ Una vez arrancado, la documentación interactiva de cada servicio está en:
 
 2. En `geo-service`, pulsa el botón **Authorize** (arriba a la derecha), pega el token (solo el token, sin la palabra `Bearer`) y ya puedes usar `POST /parcelas` y `GET /parcelas`.
 
+3. En `treatments-service`, ejecuta `GET /health`.
+
 También se puede utilizar Postman o `curl` para realizar las mismas peticiones HTTP.
 
 ---
@@ -210,9 +235,9 @@ También se puede utilizar Postman o `curl` para realizar las mismas peticiones 
 
 ## Dockerfiles
 
-Un `Dockerfile` es la receta para construir la imagen de un servicio, es decir, el paquete que contiene todo lo necesario para ejecutarlo dentro de un contenedor.
+Un `Dockerfile` contiene las instrucciones para construir la imagen de un servicio, es decir, el paquete que contiene todo lo necesario para ejecutarlo dentro de un contenedor.
 
-Cada microservicio tiene el suyo, en su propia carpeta, y los dos siguen la misma estructura.
+Cada microservicio tiene el suyo, en su propia carpeta, y los tres siguen la misma estructura.
 
 ### Qué hace el Dockerfile, paso a paso
 
@@ -249,23 +274,23 @@ Solo la imagen final se utiliza. Todo lo de la etapa `builder` se descarta.
 
 Docker Compose permite levantar todos los contenedores a la vez a partir de un único archivo, `compose.yaml`, que está en la raíz del repositorio.
 
-Con un solo comando (`docker compose up --build`) se crean **cuatro contenedores**, tres redes y dos volúmenes.
+Con un solo comando (`docker compose up --build`) se crean **seis contenedores**, cuatro redes y tres volúmenes.
 
 | Elemento | Cómo está hecho |
 |---|---|
-| **Servicios** | `auth-service`, `auth-db`, `geo-service` y `geo-db` |
+| **Servicios** | `auth-service`, `auth-db`, `geo-service` , `geo-db` , `treatments-service` y `treatments-db` |
 | **Bases de datos** | Imagen oficial `postgres:16-alpine`; no se crea ninguna imagen propia |
 | **Una base de datos por servicio** | Cada servicio solo conoce la suya. Ninguna tabla se comparte |
-| **Redes aisladas** | `auth-net` y `geo-net` unen cada servicio únicamente con su base de datos, y no tienen salida a internet. `backend-net` conecta los servicios entre sí |
-| **Volúmenes** | `auth-db-data` y `geo-db-data` son carpetas gestionadas por Docker donde PostgreSQL guarda sus datos. Los datos se conservan aunque se borren y se vuelvan a crear los contenedores |
+| **Redes aisladas** | `auth-net` , `geo-net` y `treatments-net` unen cada servicio únicamente con su base de datos, y no tienen salida a internet. `backend-net` conecta los servicios entre sí (para la comunicación entre servicios de los próximos hitos) |
+| **Volúmenes** | `auth-db-data` , `geo-db-data` y `treatments-db-data` son carpetas gestionadas por Docker donde PostgreSQL guarda sus datos. Los datos se conservan aunque se borren y se vuelvan a crear los contenedores |
 | **Orden de arranque** | Cada servicio espera a que su base de datos esté lista antes de arrancar |
 | **Configuración** | Las contraseñas y el resto de variables se leen del archivo `.env`. Si falta alguna obligatoria, Compose avisa y no arranca |
-| **Puertos hacia el exterior** | Solo el 8001 (`auth-service`) y el 8002 (`geo-service`). Las bases de datos no se pueden alcanzar desde fuera |
+| **Puertos hacia el exterior** | El 8001 (`auth-service`), el 8002 (`geo-service`) y el 8003 (`treatments-service`). Las bases de datos no se pueden alcanzar desde fuera |
 | **Reinicio automático** | Si un contenedor se cae, Docker lo vuelve a arrancar |
 
 ### Aislamiento de redes
 
-`geo-service` no está en la red `auth-net`, así que no puede encontrar la base de datos de `auth-service` (y al revés). Cada base de datos solo es accesible para su propio servicio.
+Ningún servicio comparte red con la base de datos de otro servicio. Cada base de datos solo es accesible para su propio servicio.
 
 El script `tests/e2e.sh` lo comprueba.
 
@@ -323,11 +348,13 @@ Para ejecutarlas en local:
 python3 -m venv .venv
 source .venv/bin/activate
 
-pip install -r auth-service/requirements-dev.txt -r geo-service/requirements-dev.txt
+pip install -r auth-service/requirements-dev.txt -r geo-service/requirements-dev.txt -r treatments-service/requirements-dev.txt
 
 # Pruebas y revisión de código de cada servicio
 cd auth-service && pytest && ruff check . && cd ..
 cd geo-service && pytest && ruff check . && cd ..
+cd treatments-service && pytest && ruff check . && cd ..
+
 ```
 
 ## Prueba de extremo a extremo
@@ -339,7 +366,7 @@ docker compose up -d --build --wait
 ./tests/e2e.sh
 ```
 
-La prueba de extremo a extremo comprueba el registro, login, creación de parcelas con el token y aislamiento de redes.
+La prueba de extremo a extremo comprueba el registro, login, creación de parcelas con el token, que el servicio de tratamientos esté activo y el aislamiento de redes.
 
 ---
 
@@ -383,6 +410,7 @@ Cada cambio que llega a `main` y pasa todas las pruebas publica las imágenes en
 ```bash
 docker pull ghcr.io/mariarmm/agrotrace-auth-service:latest
 docker pull ghcr.io/mariarmm/agrotrace-geo-service:latest
+docker pull ghcr.io/mariarmm/agrotrace-treatments-service:latest
 ```
 
 ---
@@ -391,11 +419,9 @@ docker pull ghcr.io/mariarmm/agrotrace-geo-service:latest
 
 El hito 2 se centra en el empaquetado, la orquestación y el CI, por lo que se
 han implementado solo los endpoints imprescindibles para demostrar el
-funcionamiento de dos microservicios. El hito 1 describe una API más amplia. De
-ella **ya existe**: registro, login, consulta de usuario, y creación y listado de
-parcelas. **Queda pendiente**:
+funcionamiento de los tres microservicios. El hito 1 describe una API más amplia. De ella **ya existe**: registro, login, consulta de usuario, y creación y listado de parcelas. **Queda pendiente**:
 
-- **Servicio de tratamientos** (tercer microservicio, con su base de datos):
+- **Servicio de tratamientos funcional** :
   registro de tratamientos y consulta del historial por planta.
 - **Importación de plantas** desde un archivo geográfico y listado de plantas por
   parcela.
