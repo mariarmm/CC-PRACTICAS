@@ -1,0 +1,3 @@
+[lint]
+# Reglas por defecto de ruff, las mismas que usa el CI
+select = ["E4", "E7", "E9", "F"]
