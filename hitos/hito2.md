@@ -43,6 +43,7 @@ CC-PRACTICAS/
 ├── hitos/                      # documentación de los hitos
 ├── compose.yaml                # orquestación local de todo el sistema
 ├── .env.example                # plantilla de variables de entorno (sin credenciales)
+├── ruff.toml                   # configuración del linter
 └── README.md
 ```
 
@@ -266,7 +267,7 @@ Solo la imagen final se utiliza. Todo lo de la etapa `builder` se descarta.
 | **Puerto** | `EXPOSE 8000` | Indica en qué puerto escucha la aplicación. Qué puertos se abren hacia el exterior se decide en el `compose.yaml` |
 | **Comprobación de salud** | Cada 10 segundos, Docker pregunta al servicio por `/health` si está bien | Docker Compose la usa para saber cuándo un servicio está listo. Se hace con Python porque la imagen `slim` no incluye `curl` y así no hay que instalar nada más |
 
-**Tamaño.** Las imágenes finales ocupan unos 288 MB (`auth-service`) y 283 MB (`geo-service`). Las imágenes intermedias de la etapa builder ocupan 301 MB para auth-service y 296 MB para geo-service. Aunque la reducción de tamaño no es tan grande en este caso, el uso de multi-stage builds permite mantener la imagen final separada de las herramientas y dependencias utilizadas únicamente durante la construcción.
+**Tamaño.** Las imágenes finales ocupan unos 288 MB (`auth-service`) y 283 MB (`geo-service` y `treatments-service`). Las imágenes intermedias de la etapa builder ocupan 301 MB para auth-service y 296 MB para geo-service y treatments-service. Aunque la reducción de tamaño no es tan grande en este caso, el uso de multi-stage builds permite mantener la imagen final separada de las herramientas y dependencias utilizadas únicamente durante la construcción.
 
 ---
 
