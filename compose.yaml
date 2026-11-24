@@ -62,13 +62,46 @@ services:
     ports:
       - "8002:8000"
 
+# Tratamientos
+  treatments-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${TREAT_DB_NAME:?falta TREAT_DB_NAME}
+      POSTGRES_USER: ${TREAT_DB_USER:?falta TREAT_DB_USER}
+      POSTGRES_PASSWORD: ${TREAT_DB_PASSWORD:?falta TREAT_DB_PASSWORD}
+    volumes:
+      - treatments-db-data:/var/lib/postgresql/data
+    networks: [treatments-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  treatments-service:
+    build: ./treatments-service
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${TREAT_DB_USER}:${TREAT_DB_PASSWORD}@treatments-db:5432/${TREAT_DB_NAME}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET}
+    depends_on:
+      treatments-db:
+        condition: service_healthy
+    networks: [treatments-net, backend-net]
+    ports:
+      - "8003:8000"
+
 networks:
   auth-net:
     internal: true
   geo-net:
+    internal: true
+  treatments-net:
     internal: true
   backend-net:
 
 volumes:
   auth-db-data:
   geo-db-data:
+  treatments-db-data:
