@@ -4,6 +4,7 @@ set -euo pipefail
 
 AUTH=http://localhost:8001
 GEO=http://localhost:8002
+TREAT=http://localhost:8003
 EMAIL="e2e-$(date +%s)@example.com"   # único en cada ejecución
 PASSWORD="supersecreta1"
 
@@ -14,9 +15,10 @@ fallo() { echo "FALLO $1"; exit 1; }
 codigo() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
 
 echo "== Servicios arriba =="
-[ "$(codigo $AUTH/health)" = 200 ] || fallo "auth-service no responde"
-[ "$(codigo $GEO/health)" = 200 ]  || fallo "geo-service no responde"
-ok "los dos servicios responden en /health"
+[ "$(codigo $AUTH/health)" = 200 ]  || fallo "auth-service no responde"
+[ "$(codigo $GEO/health)" = 200 ]   || fallo "geo-service no responde"
+[ "$(codigo $TREAT/health)" = 200 ] || fallo "treatments-service no responde"
+ok "los tres servicios responden en /health"
 
 echo "== Autenticación =="
 c=$(codigo -X POST $AUTH/auth/register -H 'Content-Type: application/json' \
@@ -45,10 +47,21 @@ curl -sf $GEO/parcelas -H "Authorization: Bearer $TOKEN" | grep -q "Olivar e2e" 
 ok "la parcela aparece en el listado"
 
 echo "== Aislamiento de redes =="
-if docker compose exec -T geo-service python -c \
-  "import socket; socket.gethostbyname('auth-db')" 2>/dev/null; then
-  fallo "geo-service puede ver auth-db: las redes no están aisladas"
-fi
-ok "geo-service no puede alcanzar la base de datos de auth-service"
+# Ningún servicio debe poder ni encontrar las bases de datos de los demás.
+# $1 = servicio desde el que se prueba, $2 = nombre que se intenta resolver
+no_resuelve() {
+  if docker compose exec -T "$1" python -c \
+    "import socket; socket.gethostbyname('$2')" 2>/dev/null; then
+    fallo "$1 puede ver $2: las redes no están aisladas"
+  fi
+  ok "$1 no puede alcanzar $2"
+}
+
+no_resuelve auth-service geo-db
+no_resuelve auth-service treatments-db
+no_resuelve geo-service auth-db
+no_resuelve geo-service treatments-db
+no_resuelve treatments-service auth-db
+no_resuelve treatments-service geo-db
 
 echo "Todas las pruebas de integración han pasado"
