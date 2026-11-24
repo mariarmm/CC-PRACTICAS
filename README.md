@@ -9,7 +9,7 @@ Autora: María Ramos Martínez
 - [Historias de usuario](https://github.com/mariarmm/CC-PRACTICAS/issues?q=is%3Aissue+state%3Aopen+label%3Auser-story)
 - Hitos:
   - [**Hito 1:** Definición del Proyecto, Modelo de Negocio y Arquitectura de Referencia](/hitos/hito1.md).
-  - [**Hito 2:** Empaquetado Cloud Native, Entorno Local e Integración Continua (CI)].
+  - [**Hito 2:** Empaquetado Cloud Native, Entorno Local e Integración Continua (CI)](/hitos/hito2.md).
 
 
 ## Estrategia de ramas
